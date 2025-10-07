@@ -41,31 +41,40 @@ def create_only_numeric_sheet(path: str) -> None:
                     numeric_sheet.cell(row=cell.row, column=cell.column, value=cell.value)
 
     wb_new.save(numeric_new_file)
-
-    #for col in reversed(list(numeric_sheet.iter_cols(min_row=1, max_row=numeric_sheet.max_row, min_col=1, max_col=numeric_sheet.max_column))):
-    #    if all(cell.value is None for cell in col):
-    #        numeric_sheet.delete_cols(col[0].column)
-
     wb_new.save(numeric_new_file)
 
-def is_list_numeric(input_list):
-    """
-    Checks if all elements in a list are numeric (integers or floats).
+def is_list_numeric(input_list: list) -> bool:
+    """Checa se todos os elementos da lista `input_list` são numéricos (integers ou floats).
 
     Args:
-        input_list: The list to check.
+        input_list (list): A lista que será checada.
 
     Returns:
-        True if all elements are numeric, False otherwise.
+        bool: True se todos os elementos forem numéricos, False se não forem.
     """
+    
     return all(isinstance(item, (int, float)) for item in input_list)
 
+
 def get_numeric_columns(path: str) -> List[int]:
+    """Encontra todas as colunas que representam apenas valores numéricos.
+    Para definir se a coluna é numérica, usa-se o primeiro, o último, e um valor de posição 
+    aleatória dentre estes intervalos, a fim de garantir que a coluna seja de fato numérica sem 
+    necessariamente processar a coluna inteira.
+
+    Args:
+        path (str): O caminho do arquivo xlsx que será examinado
+
+    Returns:
+        List[int]: Uma lista com as posições de colunas numéricas do arquivo xlsx analisado.
+    """
+
     dict_of_lists = {}
     list_of_ids = []
     worksheet = load_workbook(path)
     worksheet = worksheet.active
-    col_idx = 1 #worksheet.min_column
+    col_idx = 1
+
     logging.info("Coletando valores das colunas...")
     for i in range(col_idx, worksheet.max_column+1):
         min_index = worksheet.min_row+1
@@ -73,8 +82,10 @@ def get_numeric_columns(path: str) -> List[int]:
         random = randint(min_index+2, max_index+1) - 1
         column_values = [worksheet.cell(row=row_idx, column=i).value for row_idx in [worksheet.min_row+1, worksheet.min_row+random,worksheet.max_row]]
         dict_of_lists.update({i: column_values})
+
     logging.info("Verificando o tipo dos valores...")
     logging.info(f"Dicio: {dict_of_lists}")
+
     for key, value in dict_of_lists.items():
         if is_list_numeric(value):
             list_of_ids.append(key)
