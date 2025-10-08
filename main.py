@@ -9,6 +9,10 @@ from openpyxl.utils import column_index_from_string
 logging.basicConfig(level=logging.DEBUG)
 
 
+def is_list_string(input_list: List) -> bool:
+    return all(isinstance(item, str) for item in input_list)
+
+
 def is_list_numeric(input_list: list) -> bool:
     """Checa se todos os elementos da lista `input_list` são numéricos (integers ou floats).
 
@@ -65,6 +69,37 @@ def get_numeric_columns(path: str) -> List[int]:
     return list_of_ids
 
 
+def get_string_columns(path: str) -> List[int]:
+    dict_of_lists = {}
+    list_of_ids = []
+    worksheet = load_workbook(path)
+    worksheet = worksheet.active
+    col_idx = 1
+
+    logging.info("Coletando valores das colunas...")
+    for i in range(col_idx, worksheet.max_column + 1):
+        min_index = worksheet.min_row + 1
+        max_index = worksheet.max_row
+        random = randint(min_index + 2, max_index + 1) - 1
+        column_values = [
+            worksheet.cell(row=row_idx, column=i).value
+            for row_idx in [
+                worksheet.min_row + 1,
+                worksheet.min_row + random,
+                worksheet.max_row,
+            ]
+        ]
+        dict_of_lists.update({i: column_values})
+
+        logging.info("Verificando o tipo dos valores...")
+        logging.info(f"Dicio: {dict_of_lists}")
+
+        for key, value in dict_of_lists.items():
+            if is_list_string(value):
+                list_of_ids.append(key)
+    return set(list_of_ids)
+
+
 def create_only_numeric_sheet(path: str) -> None:
     """Exporta um novo xlsx com todo o conteúdo do arquivo informado no path,
     adicionado um sheet (planilha) contendo apenas as colunas numéricas do
@@ -111,6 +146,12 @@ if __name__ == "__main__":
     logging.info("Encontrando colunas numéricas...")
     list_numeric_columns = get_numeric_columns(path=path)
     logging.info(f"Colunas numéricas: {list_numeric_columns}")
+
+    logging.info({"..." * 20})
+
+    logging.info("Encontrando colunas string...")
+    list_string_columns = get_string_columns(path=path)
+    logging.info(f"Colunas de texto: {list_string_columns}")
 
     # logging.info("Iniciando geração de relatório...")
 
