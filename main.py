@@ -167,7 +167,7 @@ if __name__ == "__main__":
     list_numeric_columns = get_numeric_columns(path=path)
     logging.info(f"Colunas numéricas: {list_numeric_columns}")
 
-    logging.info({"..." * 20})
+    logging.info("..." * 20)
 
     logging.info("Encontrando colunas string...")
     list_string_columns = get_string_columns(path=path)
