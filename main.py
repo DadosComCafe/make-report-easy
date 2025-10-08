@@ -9,7 +9,16 @@ from openpyxl.utils import column_index_from_string
 logging.basicConfig(level=logging.DEBUG)
 
 
-def is_list_string(input_list: List) -> bool:
+def is_list_string(input_list: list) -> bool:
+    """Checa se todos os elementos da lista `input_list` são tipo texto (str).
+
+    Args:
+        input_list (list): A lista que será checada.
+
+    Returns:
+        bool: True se todos os elementos forem tipo texto, False se não forem.
+    """
+
     return all(isinstance(item, str) for item in input_list)
 
 
@@ -70,6 +79,17 @@ def get_numeric_columns(path: str) -> List[int]:
 
 
 def get_string_columns(path: str) -> List[int]:
+    """Encontra todas as colunas que representam apenas valores tipo texto (str).
+    Para definir se a coluna é tipo texto, usa-se o primeiro, o último, e um valor de posição
+    aleatória dentre estes intervalos, a fim de garantir que a coluna seja de fato tipo texto sem
+    necessariamente processar a coluna inteira.
+
+    Args:
+        path (str): O caminho do arquivo xlsx que será examinado
+
+    Returns:
+        List[int]: Uma lista com as posições de colunas tipo texto do arquivo xlsx analisado.
+    """
     dict_of_lists = {}
     list_of_ids = []
     worksheet = load_workbook(path)
