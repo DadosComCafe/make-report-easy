@@ -3,8 +3,8 @@ from random import randint
 from typing import List
 
 import ipdb
-from openpyxl import load_workbook
-from openpyxl.utils import column_index_from_string
+from openpyxl import Workbook, load_workbook
+from openpyxl.utils import column_index_from_string, get_column_letter
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -121,25 +121,42 @@ def get_string_columns(path: str) -> List[int]:
 
 
 def create_only_numeric_sheet(path: str) -> None:
-    # TODO: Deve criar um objeto worksheet, e salvar um novo arquivo excel somente numérico, com a saída de get_numeric_columns
-    worksheet = load_workbook(path)
-    worksheet = worksheet.active
+    # TODO: Melhorar o código desta função
+    workbook = load_workbook(path)
+    worksheet = workbook.active
 
+    new_workbook = Workbook()
+    new_worksheet = new_workbook.active
+    new_worksheet.title = "NumericColumns"
     numeric_columns = get_numeric_columns(path=path)
+
+    for new_col_index, col_id in enumerate(numeric_columns, start=1):
+        col_letter = get_column_letter(col_id)
+        for row_index, cell in enumerate(worksheet[col_letter], start=1):
+            new_worksheet.cell(row=row_index, column=new_col_index, value=cell.value)
+
+    logging.info(f"Criado um sheet com {len(numeric_columns)} colunas numéricas.")
+
+    output_path = path.split(".xlsx")[0] + "_numeric_only.xlsx"
+    new_workbook.save(output_path)
+    logging.info("Exportado com sucesso!")
     # TODO: Continuar
 
 
 if __name__ == "__main__":
     path = "assets/file_sample.xlsx"
-    logging.info("Encontrando colunas numéricas...")
-    list_numeric_columns = get_numeric_columns(path=path)
-    logging.info(f"Colunas numéricas: {list_numeric_columns}")
+    create_only_numeric_sheet(path=path)
 
-    logging.info("..." * 20)
+    # path = "assets/file_sample.xlsx"
+    # logging.info("Encontrando colunas numéricas...")
+    # list_numeric_columns = get_numeric_columns(path=path)
+    # logging.info(f"Colunas numéricas: {list_numeric_columns}")
 
-    logging.info("Encontrando colunas string...")
-    list_string_columns = get_string_columns(path=path)
-    logging.info(f"Colunas de texto: {list_string_columns}")
+    # logging.info("..." * 20)
+
+    # logging.info("Encontrando colunas string...")
+    # list_string_columns = get_string_columns(path=path)
+    # logging.info(f"Colunas de texto: {list_string_columns}")
 
     # logging.info("Iniciando geração de relatório...")
 
