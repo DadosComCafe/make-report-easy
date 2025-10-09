@@ -121,44 +121,12 @@ def get_string_columns(path: str) -> List[int]:
 
 
 def create_only_numeric_sheet(path: str) -> None:
-    """Exporta um novo xlsx com todo o conteúdo do arquivo informado no path,
-    adicionado um sheet (planilha) contendo apenas as colunas numéricas do
-    arquivo enviado.
+    # TODO: Deve criar um objeto worksheet, e salvar um novo arquivo excel somente numérico, com a saída de get_numeric_columns
+    worksheet = load_workbook(path)
+    worksheet = worksheet.active
 
-    Args:
-        path (str): O caminho do arquivo xlsx com o nome a extensão. Exemplo:
-            assets/sample.xlsx
-    """
-    # ipdb.set_trace()
-    # TODO: Terminar essa função, utilizando as funções anteriores criadas!
-    numeric_new_file = path.replace(".xlsx", "_numeric.xlsx")
-
-    wb_original = load_workbook(path)
-
-    wb_original.save(numeric_new_file)
-    wb_new = load_workbook(numeric_new_file)
-
-    sheets = wb_original.sheetnames
-
-    for sheet_name in sheets:
-        numeric_sheet_name = f"numeric_{sheet_name}"
-        if numeric_sheet_name not in wb_new.sheetnames:
-            wb_new.create_sheet(numeric_sheet_name)
-
-        old_sheet = wb_original[sheet_name]
-        numeric_sheet = wb_new[numeric_sheet_name]
-
-        for col in old_sheet.iter_cols():
-            if all(
-                isinstance(cell.value, (int, float)) or cell.row == 1 for cell in col
-            ):
-                for cell in col:
-                    numeric_sheet.cell(
-                        row=cell.row, column=cell.column, value=cell.value
-                    )
-
-    wb_new.save(numeric_new_file)
-    wb_new.save(numeric_new_file)
+    numeric_columns = get_numeric_columns(path=path)
+    # TODO: Continuar
 
 
 if __name__ == "__main__":
