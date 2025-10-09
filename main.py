@@ -3,8 +3,8 @@ from random import randint
 from typing import List
 
 import ipdb
-from openpyxl import load_workbook
-from openpyxl.utils import column_index_from_string
+from openpyxl import Workbook, load_workbook
+from openpyxl.utils import column_index_from_string, get_column_letter
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -121,57 +121,42 @@ def get_string_columns(path: str) -> List[int]:
 
 
 def create_only_numeric_sheet(path: str) -> None:
-    """Exporta um novo xlsx com todo o conteúdo do arquivo informado no path,
-    adicionado um sheet (planilha) contendo apenas as colunas numéricas do
-    arquivo enviado.
+    # TODO: Melhorar o código desta função
+    workbook = load_workbook(path)
+    worksheet = workbook.active
 
-    Args:
-        path (str): O caminho do arquivo xlsx com o nome a extensão. Exemplo:
-            assets/sample.xlsx
-    """
-    # ipdb.set_trace()
-    # TODO: Terminar essa função, utilizando as funções anteriores criadas!
-    numeric_new_file = path.replace(".xlsx", "_numeric.xlsx")
+    new_workbook = Workbook()
+    new_worksheet = new_workbook.active
+    new_worksheet.title = "NumericColumns"
+    numeric_columns = get_numeric_columns(path=path)
 
-    wb_original = load_workbook(path)
+    for new_col_index, col_id in enumerate(numeric_columns, start=1):
+        col_letter = get_column_letter(col_id)
+        for row_index, cell in enumerate(worksheet[col_letter], start=1):
+            new_worksheet.cell(row=row_index, column=new_col_index, value=cell.value)
 
-    wb_original.save(numeric_new_file)
-    wb_new = load_workbook(numeric_new_file)
+    logging.info(f"Criado um sheet com {len(numeric_columns)} colunas numéricas.")
 
-    sheets = wb_original.sheetnames
-
-    for sheet_name in sheets:
-        numeric_sheet_name = f"numeric_{sheet_name}"
-        if numeric_sheet_name not in wb_new.sheetnames:
-            wb_new.create_sheet(numeric_sheet_name)
-
-        old_sheet = wb_original[sheet_name]
-        numeric_sheet = wb_new[numeric_sheet_name]
-
-        for col in old_sheet.iter_cols():
-            if all(
-                isinstance(cell.value, (int, float)) or cell.row == 1 for cell in col
-            ):
-                for cell in col:
-                    numeric_sheet.cell(
-                        row=cell.row, column=cell.column, value=cell.value
-                    )
-
-    wb_new.save(numeric_new_file)
-    wb_new.save(numeric_new_file)
+    output_path = path.split(".xlsx")[0] + "_numeric_only.xlsx"
+    new_workbook.save(output_path)
+    logging.info("Exportado com sucesso!")
+    # TODO: Continuar
 
 
 if __name__ == "__main__":
     path = "assets/file_sample.xlsx"
-    logging.info("Encontrando colunas numéricas...")
-    list_numeric_columns = get_numeric_columns(path=path)
-    logging.info(f"Colunas numéricas: {list_numeric_columns}")
+    create_only_numeric_sheet(path=path)
 
-    logging.info("..." * 20)
+    # path = "assets/file_sample.xlsx"
+    # logging.info("Encontrando colunas numéricas...")
+    # list_numeric_columns = get_numeric_columns(path=path)
+    # logging.info(f"Colunas numéricas: {list_numeric_columns}")
 
-    logging.info("Encontrando colunas string...")
-    list_string_columns = get_string_columns(path=path)
-    logging.info(f"Colunas de texto: {list_string_columns}")
+    # logging.info("..." * 20)
+
+    # logging.info("Encontrando colunas string...")
+    # list_string_columns = get_string_columns(path=path)
+    # logging.info(f"Colunas de texto: {list_string_columns}")
 
     # logging.info("Iniciando geração de relatório...")
 
