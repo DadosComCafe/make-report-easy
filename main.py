@@ -122,6 +122,12 @@ def get_string_columns(path: str) -> List[int]:
 
 def create_only_numeric_sheet(path: str) -> None:
     # TODO: Melhorar o código desta função
+    # criar uma classe
+    # essa classe tem as propriedades workbook e worksheet
+    # métodos da classe fazem todo o necessário para exportar a
+    # planilha numérica e de string
+    # assim, uma próxima classe produz a planilha que é o relatório
+
     workbook = load_workbook(path)
     worksheet = workbook.active
 
