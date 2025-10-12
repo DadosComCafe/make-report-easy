@@ -122,6 +122,12 @@ def get_string_columns(path: str) -> List[int]:
 
 def create_only_numeric_sheet(path: str) -> None:
     # TODO: Melhorar o código desta função
+    # criar uma classe
+    # essa classe tem as propriedades workbook e worksheet
+    # métodos da classe fazem todo o necessário para exportar a
+    # planilha numérica e de string
+    # assim, uma próxima classe produz a planilha que é o relatório
+
     workbook = load_workbook(path)
     worksheet = workbook.active
 
@@ -140,12 +146,34 @@ def create_only_numeric_sheet(path: str) -> None:
     output_path = path.split(".xlsx")[0] + "_numeric_only.xlsx"
     new_workbook.save(output_path)
     logging.info("Exportado com sucesso!")
+
+
+def create_only_string_sheet(path: str) -> None:
+    workbook = load_workbook(path)
+    worksheet = workbook.active
+
+    new_workbook = Workbook()
+    new_worksheet = new_workbook.active
+    new_worksheet.title = "TextColumns"
+    text_columns = get_string_columns(path=path)
+
+    for new_col_index, col_id in enumerate(text_columns, start=1):
+        col_letter = get_column_letter(col_id)
+        for row_index, cell in enumerate(worksheet[col_letter], start=1):
+            new_worksheet.cell(row=row_index, column=new_col_index, value=cell.value)
+
+    logging.info(f"Criado um sheet com {len(text_columns)} colunas de texto.")
+
+    output_path = path.split(".xlsx")[0] + "_text_only.xlsx"
+    new_workbook.save(output_path)
+    logging.info("Exportado com sucesso!")
     # TODO: Continuar
 
 
 if __name__ == "__main__":
     path = "assets/file_sample.xlsx"
-    create_only_numeric_sheet(path=path)
+    create_only_string_sheet(path=path)
+    # create_only_numeric_sheet(path=path)
 
     # path = "assets/file_sample.xlsx"
     # logging.info("Encontrando colunas numéricas...")
