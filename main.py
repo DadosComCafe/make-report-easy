@@ -154,7 +154,7 @@ def create_only_string_sheet(path: str) -> None:
 
     new_workbook = Workbook()
     new_worksheet = new_workbook.active
-    new_worksheet.title = "NumericColumns"
+    new_worksheet.title = "TextColumns"
     text_columns = get_string_columns(path=path)
 
     for new_col_index, col_id in enumerate(text_columns, start=1):
