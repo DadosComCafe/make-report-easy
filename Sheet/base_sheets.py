@@ -16,7 +16,7 @@ class BaseSheet(AbstractSheet):
 
         self.new_workbook = Workbook()
         self.new_worksheet = self.new_workbook.active
-        self.new_worksheet.title = "UniqueTypeColumns"  # para cada Class Sheet, usar o super para sobescrever esta propriedade
+        self.new_worksheet.title = "UniqueTypeColumns"
 
     def get_uniquetype_columns(self, unique_type: str) -> List:
         dict_of_lists = {}
