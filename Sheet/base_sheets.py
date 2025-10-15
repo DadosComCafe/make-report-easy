@@ -9,7 +9,7 @@ from utils import is_list_numeric, is_list_string
 
 
 class BaseSheet(AbstractSheet):
-    def __init__(self, path: str, unique_type):
+    def __init__(self, path: str):
         self.path = path
         self.workbook = load_workbook(self.path)
         self.worksheet = self.workbook.active
@@ -17,7 +17,6 @@ class BaseSheet(AbstractSheet):
         self.new_workbook = Workbook()
         self.new_worksheet = self.new_workbook.active
         self.new_worksheet.title = "UniqueTypeColumns"  # para cada Class Sheet, usar o super para sobescrever esta propriedade
-        self.unique_type = unique_type
 
     def get_uniquetype_columns(self, unique_type: str) -> List:
         dict_of_lists = {}
@@ -54,8 +53,8 @@ class BaseSheet(AbstractSheet):
                     list_of_ids.append(key)
             return list_of_ids
 
-    def create_unique_type_sheet(self) -> None:
-        if self.unique_type == "text":
+    def create_unique_type_sheet(self, unique_type: str) -> None:
+        if unique_type == "text":
             self.unique_columns = self.get_uniquetype_columns(unique_type="text")
         else:
             self.unique_columns = self.get_uniquetype_columns(unique_type="numeric")
@@ -68,13 +67,13 @@ class BaseSheet(AbstractSheet):
                 )
 
         logging.info(
-            f"Criado um sheet com {len(self.unique_columns)} colunas tipo {self.unique_type}."
+            f"Criado um sheet com {len(self.unique_columns)} colunas tipo {unique_type}."
         )
 
-        if self.unique_type == "text":
-            self.output_path = path.split(".xlsx")[0] + "_string_only.xlsx"
+        if unique_type == "text":
+            self.output_path = self.path.split(".xlsx")[0] + "_string_only.xlsx"
         else:
-            self.output_path = path.split(".xlsx")[0] + "_numeric_only.xlsx"
+            self.output_path = self.path.split(".xlsx")[0] + "_numeric_only.xlsx"
         self.new_workbook.save(self.output_path)
         logging.info("Exportado com sucesso!")
 
