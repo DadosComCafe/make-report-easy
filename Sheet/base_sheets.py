@@ -81,4 +81,3 @@ class BaseSheet(AbstractSheet):
 if __name__ == "__main__":
     path = "assets/file_sample.xlsx"
     base_sheet_obj = BaseSheet(path=path)
-    # TODO: Testar isso, herdando em sheets, se eu estou conseguindo reaproveitar a lógica
