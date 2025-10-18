@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 import ipdb
 from openpyxl import Workbook, load_workbook
@@ -13,21 +14,17 @@ def get_sheet(path: str) -> Workbook:
     return workbook
 
 
-def generate_new_sheet(path: str) -> str:
-    workbook = get_sheet(path=path)
-    workbook.create_sheet("NumericMetrics")
-    new_path = f"{path.replace('.xlsx', '_numeric_report.xlsx')}"
-    workbook.save(new_path)
-    return new_path
+def get_col_names(workbook: Workbook) -> List:
+    """Função que deve retornar a lista dos nomes das colunas, para posteriormente ser reutilizado quando for criar classes"""
+    ...
 
 
 def write_metrics(path: str):
-    numeric_path = path
     report_path = path.replace(".xlsx", "_numeric_report.xlsx")
-    wb_original = load_workbook(numeric_path)
+    wb_original = get_sheet(path)
 
     wb_original.save(report_path)
-    wb_new = load_workbook(report_path)
+    wb_new = get_sheet(report_path)
 
     wb_new.create_sheet("NumericReport")
     wb_new.save(report_path)
@@ -45,21 +42,22 @@ def write_metrics(path: str):
         col_letter = get_column_letter(col_index)
         logging.info("Gerando a Somatória")
 
-        # definindo largura da coluna
+        # largura da coluna
         wb_analise.column_dimensions[f"{col_letter}"].width = 55
 
-        # definindo fonte da linha
+        # fonte da linha
         wb_analise[f"{col_letter}1"].font = Font(
             name="Calibri", size=16, bold=True, color="0000FF"
         )
 
-        # definindo a altura da linha
+        # altura da linha
         wb_analise.row_dimensions[1].height = 30
         wb_analise[f"{col_letter}1"] = f"Somatória dos valores de: {name}"
 
         wb_analise[f"{col_letter}2"] = f"=SUM({sheet}!{col_letter}:{col_letter})"
         logging.info("Gerando a média")
-        # definindo fonte da linha
+
+        # fonte da linha
         wb_analise[f"{col_letter}5"].font = Font(
             name="Calibri", size=16, bold=True, color="0000FF"
         )
@@ -70,7 +68,7 @@ def write_metrics(path: str):
         wb_analise[f"{col_letter}6"] = f"=AVERAGE({sheet}!{col_letter}:{col_letter})"
         logging.info("Gerando o máximo")
 
-        # definindo fonte da linha
+        # fonte da linha
         wb_analise[f"{col_letter}9"].font = Font(
             name="Calibri", size=16, bold=True, color="0000FF"
         )
@@ -80,7 +78,8 @@ def write_metrics(path: str):
         wb_analise[f"{col_letter}10"] = f"=MAX({sheet}!{col_letter}:{col_letter})"
 
         logging.info("Gerando o minimo")
-        # definindo fonte da linha
+
+        # fonte da linha
         wb_analise[f"{col_letter}13"].font = Font(
             name="Calibri", size=16, bold=True, color="0000FF"
         )
@@ -95,5 +94,4 @@ def write_metrics(path: str):
 
 if __name__ == "__main__":
     path = "assets/file_sample_numeric_only.xlsx"
-    # new_path = generate_new_sheet(path=path)
     report = write_metrics(path=path)
