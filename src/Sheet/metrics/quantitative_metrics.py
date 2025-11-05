@@ -2,10 +2,10 @@ import logging
 from typing import List
 
 import ipdb
-from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.worksheet import Worksheet
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -32,9 +32,9 @@ def get_col_names(workbook: Workbook) -> List:
     Returns:
         List: A lista dos nomes das colunas.
     """
-    worksheet: Worksheet = workbook.worksheets[0] 
+    worksheet: Worksheet = workbook.worksheets[0]
 
-    header_row_cells = worksheet[1] 
+    header_row_cells = worksheet[1]
 
     column_names = [cell.value for cell in header_row_cells if cell.value is not None]
 
@@ -43,7 +43,7 @@ def get_col_names(workbook: Workbook) -> List:
 
 def write_metrics(path: str, workbook: Workbook = None) -> None:
     report_path = path.replace(".xlsx", "_numeric_report.xlsx")
-    
+
     if not workbook:
         wb_original = get_sheet(path)
 
