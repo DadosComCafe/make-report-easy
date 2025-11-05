@@ -4,7 +4,7 @@ from typing import List
 
 from abstract_sheets import AbstractSheet
 from openpyxl import Workbook, load_workbook
-from openpyxl.utils import column_index_from_string, get_column_letter
+from openpyxl.utils import get_column_letter
 from utils import is_list_numeric, is_list_string
 
 

@@ -2,6 +2,7 @@ import logging
 from typing import List
 
 import ipdb
+from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
@@ -10,18 +11,41 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def get_sheet(path: str) -> Workbook:
+    """Carrega o arquivo excel do caminho informado, retornando um objeto `Workbook`
+
+    Args:
+        path (str): O caminho do arquivo Excel.
+
+    Returns:
+        Workbook: O objeto Workbook do openpyxl.
+    """
     workbook = load_workbook(path)
     return workbook
 
 
 def get_col_names(workbook: Workbook) -> List:
-    """Função que deve retornar a lista dos nomes das colunas, para posteriormente ser reutilizado quando for criar classes"""
-    ...
+    """Obtém os nomes das colunas da primeira planilha do arquivo Excel.
+
+    Args:
+        workbook (Workbook): O objeto Workbook do openpyxl.
+
+    Returns:
+        List: A lista dos nomes das colunas.
+    """
+    worksheet: Worksheet = workbook.worksheets[0] 
+
+    header_row_cells = worksheet[1] 
+
+    column_names = [cell.value for cell in header_row_cells if cell.value is not None]
+
+    return column_names
 
 
-def write_metrics(path: str):
+def write_metrics(path: str, workbook: Workbook = None) -> None:
     report_path = path.replace(".xlsx", "_numeric_report.xlsx")
-    wb_original = get_sheet(path)
+    
+    if not workbook:
+        wb_original = get_sheet(path)
 
     wb_original.save(report_path)
     wb_new = get_sheet(report_path)
