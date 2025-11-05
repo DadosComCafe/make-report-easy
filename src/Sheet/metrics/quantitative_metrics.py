@@ -1,0 +1,121 @@
+import logging
+from typing import List
+
+import ipdb
+from openpyxl import Workbook, load_workbook
+from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.worksheet import Worksheet
+
+logging.basicConfig(level=logging.DEBUG)
+
+
+def get_sheet(path: str) -> Workbook:
+    """Carrega o arquivo excel do caminho informado, retornando um objeto `Workbook`
+
+    Args:
+        path (str): O caminho do arquivo Excel.
+
+    Returns:
+        Workbook: O objeto Workbook do openpyxl.
+    """
+    workbook = load_workbook(path)
+    return workbook
+
+
+def get_col_names(workbook: Workbook) -> List:
+    """Obtém os nomes das colunas da primeira planilha do arquivo Excel.
+
+    Args:
+        workbook (Workbook): O objeto Workbook do openpyxl.
+
+    Returns:
+        List: A lista dos nomes das colunas.
+    """
+    worksheet: Worksheet = workbook.worksheets[0]
+
+    header_row_cells = worksheet[1]
+
+    column_names = [cell.value for cell in header_row_cells if cell.value is not None]
+
+    return column_names
+
+
+def write_metrics(path: str, workbook: Workbook = None) -> None:
+    report_path = path.replace(".xlsx", "_numeric_report.xlsx")
+
+    if not workbook:
+        wb_original = get_sheet(path)
+
+    wb_original.save(report_path)
+    wb_new = get_sheet(report_path)
+
+    wb_new.create_sheet("NumericReport")
+    wb_new.save(report_path)
+
+    sheets: list = wb_original.sheetnames
+
+    for sheet in sheets:
+        if sheet == "NumericColumns":
+            current_sheet = sheet
+
+    col_names = [cel.value for cel in wb_original[current_sheet][1]]
+    wb_analise = wb_new["NumericReport"]
+
+    for col_index, name in enumerate(col_names, start=1):
+        col_letter = get_column_letter(col_index)
+        logging.info("Gerando a Somatória")
+
+        # largura da coluna
+        wb_analise.column_dimensions[f"{col_letter}"].width = 55
+
+        # fonte da linha
+        wb_analise[f"{col_letter}1"].font = Font(
+            name="Calibri", size=16, bold=True, color="0000FF"
+        )
+
+        # altura da linha
+        wb_analise.row_dimensions[1].height = 30
+        wb_analise[f"{col_letter}1"] = f"Somatória dos valores de: {name}"
+
+        wb_analise[f"{col_letter}2"] = f"=SUM({sheet}!{col_letter}:{col_letter})"
+        logging.info("Gerando a média")
+
+        # fonte da linha
+        wb_analise[f"{col_letter}5"].font = Font(
+            name="Calibri", size=16, bold=True, color="0000FF"
+        )
+
+        wb_analise.row_dimensions[5].height = 30
+        wb_analise[f"{col_letter}5"] = f"Média dos valores de: {name}"
+
+        wb_analise[f"{col_letter}6"] = f"=AVERAGE({sheet}!{col_letter}:{col_letter})"
+        logging.info("Gerando o máximo")
+
+        # fonte da linha
+        wb_analise[f"{col_letter}9"].font = Font(
+            name="Calibri", size=16, bold=True, color="0000FF"
+        )
+        wb_analise.row_dimensions[9].height = 30
+        wb_analise[f"{col_letter}9"] = f"Máximo dos valores de: {name}"
+
+        wb_analise[f"{col_letter}10"] = f"=MAX({sheet}!{col_letter}:{col_letter})"
+
+        logging.info("Gerando o minimo")
+
+        # fonte da linha
+        wb_analise[f"{col_letter}13"].font = Font(
+            name="Calibri", size=16, bold=True, color="0000FF"
+        )
+        wb_analise.row_dimensions[13].height = 30
+        wb_analise[f"{col_letter}13"] = f"Mínimo dos valores de: {name}"
+
+        wb_analise[f"{col_letter}14"] = f"=MIN({sheet}!{col_letter}:{col_letter})"
+
+    wb_new.save(report_path)
+    logging.info("Relatório gerado com sucesso.")
+
+
+if __name__ == "__main__":
+    path = "assets/file_sample_numeric_only.xlsx"
+    report = write_metrics(path=path)
